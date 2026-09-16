@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
-import { LayoutDashboard, Server, Users, ShieldAlert } from "lucide-react";
+import { LayoutDashboard, Server, Users, ShieldAlert, Settings } from "lucide-react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -25,7 +25,7 @@ export default function RootLayout({
           <aside className="sidebar">
             <div style={{ padding: '2rem 1.5rem', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', boxShadow: '0 0 15px rgba(59,130,246,0.5)' }}></div>
+                <img src="/logo.png" alt="Synparc Logo" width={32} height={32} style={{ borderRadius: 8, boxShadow: '0 0 15px rgba(59,130,246,0.5)' }} />
                 <span style={{ fontSize: '1.25rem', fontWeight: 700, color: '#fff', letterSpacing: '1px' }}>SYNPARC</span>
               </div>
             </div>
@@ -42,6 +42,9 @@ export default function RootLayout({
               </Link>
               <Link href="/permissions" className="nav-link">
                 <ShieldAlert size={20} /> Sécurité & Droits
+              </Link>
+              <Link href="/settings" className="nav-link">
+                <Settings size={20} /> Paramètres
               </Link>
             </nav>
             

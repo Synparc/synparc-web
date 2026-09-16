@@ -3,16 +3,16 @@ import { Activity, ShieldAlert, Users, Server } from "lucide-react";
 async function getStats() {
   try {
     const [machinesRes, usersRes] = await Promise.all([
-      fetch("http://localhost:3000/api/web/machines", { cache: "no-store" }),
-      fetch("http://localhost:3000/api/web/users", { cache: "no-store" }),
+      fetch("http://127.0.0.1:3001/api/web/machines", { cache: "no-store" }),
+      fetch("http://127.0.0.1:3001/api/web/users", { cache: "no-store" }),
     ]);
     
-    const machines = machinesRes.ok ? await machinesRes.json() : [];
-    const users = usersRes.ok ? await usersRes.json() : [];
+    const machinesData = machinesRes.ok ? await machinesRes.json() : { data: [] };
+    const usersData = usersRes.ok ? await usersRes.json() : { data: [] };
     
     return {
-      machineCount: machines.length,
-      userCount: users.length,
+      machineCount: machinesData.data ? machinesData.data.length : 0,
+      userCount: usersData.data ? usersData.data.length : 0,
     };
   } catch (e) {
     return { machineCount: 0, userCount: 0 };
