@@ -248,8 +248,9 @@ export default function SettingsPage() {
           color: statusMsg.type === 'success' ? '#10b981' : '#ef4444',
           display: 'flex',
           alignItems: 'center',
-          justify: 'space-between',
+          justifyContent: 'space-between',
           fontWeight: 500
+
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {statusMsg.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
