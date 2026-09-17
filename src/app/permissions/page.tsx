@@ -1,13 +1,15 @@
 "use client";
 
-import { ShieldAlert, Search, FileText, Users, Server, ChevronRight } from "lucide-react";
+import { ShieldAlert, Search, FileText, Users, Server, ChevronRight, FolderSync } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import { apiRoute } from "@/lib/api";
 
 interface SearchResults {
   foundUsers: any[];
   foundMachines: any[];
   foundPermissions: any[];
+  foundResources: any[];
 }
 
 export default function PermissionsPage() {
@@ -23,24 +25,47 @@ export default function PermissionsPage() {
     setLoading(true);
     setHasSearched(true);
     try {
-      const res = await fetch(`http://127.0.0.1:3001/api/web/search?q=${encodeURIComponent(searchTerm.trim())}`, { cache: "no-store" });
-      if (res.ok) {
-        const resData = await res.json();
-        setResults(resData.data || { foundUsers: [], foundMachines: [], foundPermissions: [] });
-      } else {
-        setResults({ foundUsers: [], foundMachines: [], foundPermissions: [] });
+      const [resPerm, resOmni] = await Promise.all([
+        fetch(apiRoute(`/permissions/search?q=${encodeURIComponent(searchTerm.trim())}`), { cache: "no-store" }),
+        fetch(apiRoute(`/search?q=${encodeURIComponent(searchTerm.trim())}`), { cache: "no-store" })
+      ]);
+
+      let foundPermissions: any[] = [];
+      let foundUsers: any[] = [];
+      let foundMachines: any[] = [];
+      let foundResources: any[] = [];
+
+      if (resPerm.ok) {
+        const data = await resPerm.json();
+        foundPermissions = data.data || [];
       }
+
+      if (resOmni.ok) {
+        const data = await resOmni.json();
+        const omniItems: any[] = data.data || [];
+        foundUsers = omniItems.filter((i: any) => i.type === 'user');
+        foundMachines = omniItems.filter((i: any) => i.type === 'machine');
+        foundResources = omniItems.filter((i: any) => i.type === 'resource' || i.type === 'department');
+      }
+
+      setResults({
+        foundUsers,
+        foundMachines,
+        foundPermissions,
+        foundResources
+      });
     } catch (e) {
       console.error(e);
-      setResults({ foundUsers: [], foundMachines: [], foundPermissions: [] });
+      setResults({ foundUsers: [], foundMachines: [], foundPermissions: [], foundResources: [] });
     } finally {
       setLoading(false);
     }
   };
 
-  const totalResults = results 
-    ? (results.foundUsers.length + results.foundMachines.length + results.foundPermissions.length)
-    : 0;
+  const totalResults = (results?.foundUsers?.length || 0) + 
+                       (results?.foundMachines?.length || 0) + 
+                       (results?.foundPermissions?.length || 0) +
+                       (results?.foundResources?.length || 0);
 
   return (
     <div>
@@ -99,7 +124,7 @@ export default function PermissionsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
           {/* 1. Utilisateurs trouvés */}
-          {results.foundUsers.length > 0 && (
+          {(results?.foundUsers?.length || 0) > 0 && (
             <div className="glass-panel animate-fade-in" style={{ padding: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: '#10b981' }}>
                 <Users size={20} />
@@ -138,7 +163,7 @@ export default function PermissionsPage() {
           )}
 
           {/* 2. Machines trouvées */}
-          {results.foundMachines.length > 0 && (
+          {(results?.foundMachines?.length || 0) > 0 && (
             <div className="glass-panel animate-fade-in" style={{ padding: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: '#3b82f6' }}>
                 <Server size={20} />
@@ -174,7 +199,7 @@ export default function PermissionsPage() {
           )}
 
           {/* 3. Permissions effectives */}
-          {results.foundPermissions.length > 0 && (
+          {(results?.foundPermissions?.length || 0) > 0 && (
             <div className="glass-panel animate-fade-in" style={{ overflow: 'hidden' }}>
               <div style={{ padding: '20px 20px 10px 20px', display: 'flex', alignItems: 'center', gap: '10px', color: '#f59e0b' }}>
                 <FileText size={20} />
@@ -225,6 +250,41 @@ export default function PermissionsPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* 4. Disques & Partages Réseau trouvés */}
+          {(results?.foundResources?.length || 0) > 0 && (
+            <div className="glass-panel animate-fade-in" style={{ padding: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: '#ec4899' }}>
+                <FolderSync size={20} />
+                <h2 style={{ fontSize: '1.2rem', fontWeight: 600 }}>Disques & Partages Réseau ({results.foundResources.length})</h2>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
+                {results.foundResources.map((r: any) => (
+                  <Link 
+                    key={r.id} 
+                    href={r.url || '#'}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '14px 18px',
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.03)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      textDecoration: 'none',
+                      color: 'inherit'
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 600, color: '#fff', fontFamily: 'monospace' }}>{r.title}</div>
+                      <div style={{ fontSize: '0.85rem', color: '#ec4899', marginTop: '2px' }}>{r.subtitle}</div>
+                    </div>
+                    <ChevronRight size={18} color="var(--text-muted)" />
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
 
