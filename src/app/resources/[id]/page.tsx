@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { FolderSync, Server, ArrowLeft, Loader2, Info, HardDrive } from 'lucide-react';
+import { FolderSync, Server, ArrowLeft, Loader2, Info, HardDrive, Download, Printer } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { apiRoute } from '@/lib/api';
+import { exportToCSV, printAuditReport } from '@/lib/exportUtils';
+
 
 export default function ResourceProfilePage() {
   const { id } = useParams();
@@ -43,7 +45,39 @@ export default function ResourceProfilePage() {
     }
   };
 
+  const handleExportCSV = () => {
+    if (!permissions || permissions.length === 0) return;
+    const headers = ["Utilisateur", "Identifiant AD", "Pôle / Département", "Niveau d'accès", "Origine du Droit"];
+    const rows = permissions.map((p: any) => [
+      p.displayName || p.username || "-",
+      p.username || "-",
+      p.department || "AD",
+      p.accessLevel || "-",
+      p.originType === 'inherited_group' ? `Hérité du groupe ${p.originGroupName || "AD"}` : "Attribution Directe"
+    ]);
+    exportToCSV(`AccessMatrix_${resource.path.replace(/[^a-zA-Z0-9]/g, '_')}`, headers, rows);
+  };
+
+  const handlePrintPDF = () => {
+    if (!permissions || permissions.length === 0) return;
+    const headers = ["Utilisateur", "Identifiant AD", "Pôle / Département", "Niveau d'accès", "Origine du Droit"];
+    const rows = permissions.map((p: any) => [
+      p.displayName || p.username || "-",
+      p.username || "-",
+      p.department || "AD",
+      p.accessLevel || "-",
+      p.originType === 'inherited_group' ? `Hérité du groupe ${p.originGroupName || "AD"}` : "Attribution Directe"
+    ]);
+    printAuditReport(
+      `Rapport d'Audit d'Accès : ${resource.path}`,
+      `Ressource hébergée sur ${machine?.hostname || 'Serveur Réseau'} (${getResourceTypeLabel(resource.resourceType)})`,
+      headers,
+      rows
+    );
+  };
+
   return (
+
     <div style={{ paddingBottom: '40px' }}>
       <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#9ca3af', textDecoration: 'none', marginBottom: '24px' }}>
         <ArrowLeft size={16} /> Retour
@@ -108,11 +142,26 @@ export default function ResourceProfilePage() {
         </div>
       </div>
 
-      {/* TABLEAU DES UTILISATEURS AYANT ACCÈS */}
-      <div className="glass-panel" style={{ overflow: 'hidden', marginBottom: '24px' }}>
-        <div style={{ padding: '20px 20px 10px 20px', display: 'flex', alignItems: 'center', gap: '10px', color: '#10b981' }}>
-          <h2 style={{ fontSize: '1.2rem', fontWeight: 600 }}>👤 Utilisateurs ayant accès à cette ressource ({permissions.length})</h2>
+        <div style={{ padding: '20px 20px 10px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#10b981' }}>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 600 }}>👤 Utilisateurs ayant accès à cette ressource ({permissions.length})</h2>
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={handleExportCSV}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10b981', color: '#10b981', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}
+            >
+              <Download size={14} /> Export CSV
+            </button>
+            <button
+              onClick={handlePrintPDF}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'rgba(139, 92, 246, 0.15)', border: '1px solid #8b5cf6', color: '#8b5cf6', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}
+            >
+              <Printer size={14} /> Rapport Audit PDF
+            </button>
+          </div>
         </div>
+
         <table className="data-table">
           <thead>
             <tr>
