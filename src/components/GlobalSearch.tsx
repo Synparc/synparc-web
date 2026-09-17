@@ -67,7 +67,6 @@ export default function GlobalSearch() {
           type="text" 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => { if(results.length > 0) setIsOpen(true) }}
           placeholder="Rechercher (PCs, Utilisateurs, Disques...)" 
           style={{
             width: '100%',
@@ -81,8 +80,13 @@ export default function GlobalSearch() {
             transition: 'all 0.2s',
             boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
           }}
-          onFocus={(e) => e.target.style.border = '1px solid #3b82f6'}
+          onFocus={(e) => {
+            e.target.style.border = '1px solid #3b82f6';
+            if (results.length > 0) setIsOpen(true);
+          }}
           onBlur={(e) => e.target.style.border = '1px solid rgba(255,255,255,0.1)'}
+
+
         />
       </div>
 
