@@ -458,8 +458,11 @@ export default function SettingsPage() {
               {tokens.length === 0 && <p style={{ color: 'var(--text-muted)' }}>Aucun jeton généré.</p>}
             </div>
           )}
+        </div>
+
         {/* CONFIGURATION MICROSOFT 365 (ENTRA ID GRAPH API) */}
         <div className="glass-panel" style={{ padding: '24px', gridColumn: '1 / -1' }}>
+
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem' }}>
               <Cloud size={20} color="#8b5cf6" />
