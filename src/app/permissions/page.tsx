@@ -281,7 +281,10 @@ export default function PermissionsPage() {
           )}
 
           {/* 3. Permissions effectives */}
+          {(results?.foundPermissions?.length || 0) > 0 && (
+            <div className="glass-panel animate-fade-in" style={{ overflow: 'hidden' }}>
               <div style={{ padding: '20px 20px 10px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#f59e0b' }}>
                   <FileText size={20} />
                   <h2 style={{ fontSize: '1.2rem', fontWeight: 600 }}>Matrice de Droits & Permissions ({results.foundPermissions.length})</h2>
