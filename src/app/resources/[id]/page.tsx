@@ -142,7 +142,10 @@ export default function ResourceProfilePage() {
         </div>
       </div>
 
+      {/* TABLEAU DES UTILISATEURS AYANT ACCÈS */}
+      <div className="glass-panel" style={{ overflow: 'hidden', marginBottom: '24px' }}>
         <div style={{ padding: '20px 20px 10px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#10b981' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 600 }}>👤 Utilisateurs ayant accès à cette ressource ({permissions.length})</h2>
           </div>
