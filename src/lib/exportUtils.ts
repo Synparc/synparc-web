@@ -116,7 +116,8 @@ export function printNIS2AuditReport(
   nis2Status: string,
   entityCategory: string,
   pillars: any[],
-  checkpoints: any[]
+  checkpoints: any[],
+  adminName: string = "Administrateur Syst\u00e8me" // FIX-04: param\u00e8tre dynamique, plus de nom hardcod\u00e9
 ) {
   const printWindow = window.open("", "_blank");
   if (!printWindow) return;
@@ -202,7 +203,7 @@ export function printNIS2AuditReport(
       <div class="sign-box">
         <div>
           <div style="font-size: 11px; font-weight: 700; color: #475569;">AUDITEUR / DSI RESPONSABLE</div>
-          <div style="font-size: 12px; font-weight: 600; margin-top: 4px;">Djael M. — Administrateur Système & Sécurité</div>
+          <div style="font-size: 12px; font-weight: 600; margin-top: 4px;">${adminName} — Direction des Syst\u00e8mes d'Information</div>
           <div style="font-size: 10px; color: #94a3b8;">Synparc Autonomous Security Engine</div>
         </div>
         <div style="text-align: right;">
