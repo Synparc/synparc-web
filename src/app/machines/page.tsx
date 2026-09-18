@@ -114,51 +114,73 @@ export default function MachinesPage() {
                   </td>
                 </tr>
               ) : (
-                machines.map((m: any) => (
-                  <tr key={m.id} style={{ cursor: 'pointer' }}>
-                    <td style={{ fontFamily: 'monospace', color: '#3b82f6' }}>
-                      <Link href={`/machines/${m.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
-                        {m.id.substring(0,8)}...
-                      </Link>
-                    </td>
-                    <td style={{ fontWeight: 600 }}>
-                      <Link href={`/machines/${m.id}`} style={{ color: 'var(--foreground)', textDecoration: 'none' }}>
-                        {m.hostname}
-                      </Link>
-                    </td>
-                    <td>
-                      <span style={{ 
-                        padding: '4px 8px', 
-                        borderRadius: '6px', 
-                        fontSize: '0.75rem', 
-                        fontWeight: 600,
-                        background: m.machineType === 'server' ? 'rgba(139, 92, 246, 0.15)' : 'rgba(59, 130, 246, 0.15)',
-                        color: m.machineType === 'server' ? '#a78bfa' : '#60a5fa',
-                        marginRight: '8px'
-                      }}>
-                        {m.machineType === 'server' ? 'Serveur' : 'Poste'}
-                      </span>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                        {m.osName || 'OS Inconnu'} {m.osVersion || ''}
-                      </span>
-                    </td>
-                    <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{m.lastIp || "Non disponible"}</td>
-                    <td style={{ fontSize: '0.85rem' }}>
-                      {m.lastCheckinAt ? new Date(m.lastCheckinAt).toLocaleString('fr-FR') : "Jamais"}
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Activity size={16} color="#10b981" />
-                        <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: 500 }}>En ligne</span>
-                      </div>
-                    </td>
-                    <td>
-                      <Link href={`/machines/${m.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#3b82f6', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
-                        Détails <ChevronRight size={16} />
-                      </Link>
-                    </td>
-                  </tr>
-                ))
+                Array.from(
+                  machines.reduce((map, m) => {
+                    const key = (m.hostname || "").toLowerCase();
+                    const existing = map.get(key);
+                    if (!existing) {
+                      map.set(key, m);
+                    } else {
+                      const timeM = m.lastCheckinAt ? new Date(m.lastCheckinAt).getTime() : (m.lastSeenAt ? new Date(m.lastSeenAt).getTime() : 0);
+                      const timeE = existing.lastCheckinAt ? new Date(existing.lastCheckinAt).getTime() : (existing.lastSeenAt ? new Date(existing.lastSeenAt).getTime() : 0);
+                      if (timeM > timeE) map.set(key, m);
+                    }
+                    return map;
+                  }, new Map<string, any>()).values()
+                ).map((m: any) => {
+                  const lastTime = m.lastCheckinAt ? new Date(m.lastCheckinAt).getTime() : (m.lastSeenAt ? new Date(m.lastSeenAt).getTime() : 0);
+                  const diffMinutes = lastTime > 0 ? (Date.now() - lastTime) / (1000 * 60) : 99999;
+                  const isOnline = diffMinutes <= 15;
+                  const isIdle = diffMinutes > 15 && diffMinutes <= 1440; // Contact < 24h
+                  const statusColor = isOnline ? '#10b981' : isIdle ? '#f59e0b' : '#ef4444';
+                  const statusText = isOnline ? 'En ligne' : isIdle ? 'Inactif (<24h)' : 'Hors ligne';
+
+                  return (
+                    <tr key={m.id} style={{ cursor: 'pointer' }}>
+                      <td style={{ fontFamily: 'monospace', color: '#3b82f6' }}>
+                        <Link href={`/machines/${m.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                          {m.id.substring(0,8)}...
+                        </Link>
+                      </td>
+                      <td style={{ fontWeight: 600 }}>
+                        <Link href={`/machines/${m.id}`} style={{ color: 'var(--foreground)', textDecoration: 'none' }}>
+                          {m.hostname}
+                        </Link>
+                      </td>
+                      <td>
+                        <span style={{ 
+                          padding: '4px 8px', 
+                          borderRadius: '6px', 
+                          fontSize: '0.75rem', 
+                          fontWeight: 600,
+                          background: m.machineType === 'server' ? 'rgba(139, 92, 246, 0.15)' : 'rgba(59, 130, 246, 0.15)',
+                          color: m.machineType === 'server' ? '#a78bfa' : '#60a5fa',
+                          marginRight: '8px'
+                        }}>
+                          {m.machineType === 'server' ? 'Serveur' : 'Poste'}
+                        </span>
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                          {m.osName || 'OS Inconnu'} {m.osVersion || ''}
+                        </span>
+                      </td>
+                      <td style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{m.lastIp || "Non disponible"}</td>
+                      <td style={{ fontSize: '0.85rem' }}>
+                        {m.lastCheckinAt ? new Date(m.lastCheckinAt).toLocaleString('fr-FR') : "Jamais"}
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Activity size={16} color={statusColor} />
+                          <span style={{ fontSize: '0.85rem', color: statusColor, fontWeight: 500 }}>{statusText}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <Link href={`/machines/${m.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#3b82f6', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}>
+                          Détails <ChevronRight size={16} />
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
