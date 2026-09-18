@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
-import { LayoutDashboard, Server, Users, ShieldAlert, Settings } from "lucide-react";
+import { LayoutDashboard, Server, Users, ShieldAlert, Settings, FileCheck } from "lucide-react";
+import GlobalSearch from "@/components/GlobalSearch";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -17,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
+    <html lang="en">
       <body className={inter.variable}>
         <div className="app-container">
           
@@ -43,6 +44,9 @@ export default function RootLayout({
               <Link href="/permissions" className="nav-link">
                 <ShieldAlert size={20} /> Sécurité & Droits
               </Link>
+              <Link href="/compliance" className="nav-link">
+                <FileCheck size={20} /> Conformité NIS2
+              </Link>
               <Link href="/settings" className="nav-link">
                 <Settings size={20} /> Paramètres
               </Link>
@@ -58,6 +62,7 @@ export default function RootLayout({
           {/* Main Area */}
           <main className="main-content">
             <header className="topbar">
+              <GlobalSearch />
               <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#fff' }}>Admin System</div>
