@@ -7,6 +7,7 @@ import {
   HelpCircle, ChevronDown, ChevronUp, Layers, Key, Server, Cloud, UserX, Info
 } from 'lucide-react';
 import { exportToCSV, printNIS2AuditReport } from '@/lib/exportUtils';
+import { apiRoute } from '@/lib/api';
 
 export default function CompliancePage() {
   const [data, setData] = useState<any>(null);
@@ -24,7 +25,7 @@ export default function CompliancePage() {
   const fetchComplianceData = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://127.0.0.1:3001/api/web/compliance/nis2');
+      const res = await fetch(apiRoute('/compliance/nis2'));
       const json = await res.json();
       if (json.status === 'success') {
         setData(json.data);
